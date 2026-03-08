@@ -17,9 +17,14 @@ sh 'docker build -t aakashrio/node-cicd:v1 .'
 }
 
 stage('Push Docker Image') {
-steps {
-sh 'docker push aakashrio/node-cicd:v1'
-}
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub_cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+            sh '''
+            echo $PASS | docker login -u $USER --password-stdin
+            docker push aakashrio/node-cicd:v1
+            '''
+        }
+    }
 }
 
 stage('Deploy Kubernetes') {
